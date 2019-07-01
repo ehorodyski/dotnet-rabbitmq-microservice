@@ -1,0 +1,41 @@
+version '3'
+
+services:
+  emailapi:
+    image: email
+    build:
+      context: ./services
+      dockerfile: email.Dockerfile
+    ports:
+      - "8082:80"
+    depends_on:
+      - mssql
+      - rabbitmq
+  userapi:
+    image: user
+    build:
+      context: ./services
+      dockerfile: user.Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - mssql
+      - rabbitmq
+  mssql:
+    image: "micrsoft/mssql-server-linux"
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    environment:
+      SA_PASSWORD: "password"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: rabbitmq
+    hostname: my-rabbit
